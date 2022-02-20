@@ -14,7 +14,7 @@ const showInputError = (
   errorElement.classList.add(errorClass);
 };
 
-const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) => {
+export const hideInputError = (formElement, inputElement, inputErrorClass, errorClass) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
   inputElement.classList.remove(inputErrorClass);
 
@@ -84,7 +84,7 @@ const enableValidation = ({
   submitButtonSelector,
   inactiveButtonClass,
   inputErrorClass,
-  errorClass,
+  errorClass
 }) => {
   const formList = Array.from(document.querySelectorAll(formSelector));
   formList.forEach((formElement) => {

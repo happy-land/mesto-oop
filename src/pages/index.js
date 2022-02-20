@@ -1,64 +1,52 @@
+import Api from '../components/api.js';
+import { inputFieldStateCheck } from '../utils/utils.js';
 import { createCard, renderCard } from '../components/card.js';
 import { openPopup, closePopup, updateSubmitButtonState } from '../components/modal.js';
 import { enableValidation } from '../components/validate.js';
-import {
-  getAppInfo,
-  updateProfile,
-  addLike,
-  removeLike,
-  addCard,
-  deleteCard,
-  updateAvatar,
-} from '../components/api.js';
+import { popupProfileEditElement,
+  popupPlaceNewElement,
+  popupAvatarEditElement,
+  popupRemoveCardElement,
+  editProfileButton,
+  avatarLogo,
+  editAvatarIcon,
+  addPlaceButtonElement,
+  profileAvatar,
+  profileUsername,
+  profileDescription,
+  editAvatarForm,
+  avatarInput,
+  editProfileForm,
+  nameInput,
+  jobInput,
+  newPlaceForm,
+  placeInput,
+  imageUrlInput,
+  removeCardForm } from '../utils/constants.js';
+
 import '../pages/index.css';
 
-// Массив попапов
-export const popups = document.querySelectorAll('.popup');
-
-const popupProfileEditElement = document.querySelector('.popup_type_profile-edit');
-const popupPlaceNewElement = document.querySelector('.popup_type_place-new');
-const popupAvatarEditElement = document.querySelector('.popup_type_avatar-edit');
-const popupRemoveCardElement = document.querySelector('.popup_type_remove-card');
-
-// Кнопки
-const editProfileButton = document.querySelector('.profile__edit-button');
-
-const avatarLogo = document.querySelector('.profile__avatar');
-const editAvatarIcon = document.querySelector('.profile__edit-avatar');
-
-const addPlaceButtonElement = document.querySelector('.profile__add-button');
-
-// Сохраним в переменные значения полей из профиля - аватар, имя пользователя и описание
-const profileAvatar = document.querySelector('.profile__avatar');
-const profileUsername = document.querySelector('.profile__username');
-const profileDescription = document.querySelector('.profile__description');
-
-// Форма редактирования аватара
-const editAvatarForm = document.forms.editavatarform;
-const avatarInput = editAvatarForm.elements.avatar;
-
-// Форма редактирования профиля
-const editProfileForm = document.forms.editprofileform;
-const nameInput = editProfileForm.elements.username;
-const jobInput = editProfileForm.elements.description;
-
-// Форма редактирования новой карточки
-const newPlaceForm = document.forms.newplaceform;
-const placeInput = newPlaceForm.elements.place;
-const imageUrlInput = newPlaceForm.elements.imagelink;
-
-// Форма - подтвердить удаление карточки
-const removeCardForm = document.forms.removecardform;
+// Создаем обьек Api
+const api = new Api({
+  baseUrl: 'https://nomoreparties.co/v1/plus-cohort-6',
+  headers: {
+    authorization: 'f3d57c75-f8a6-4acb-a0b6-75252be6dd05',
+    'Content-Type': 'application/json'
+    }
+});
 
 // id текущего пользователя
 let currentUserId;
 
+// Массив попапов
+export const popups = document.querySelectorAll('.popup');
+
 // редактирование аватара
-const handleMouseOver = (evt) => {
+const handleMouseOver = () => {
   editAvatarIcon.classList.remove('profile__edit-avatar_hidden');
 };
 
-const handleMouseOut = (evt) => {
+const handleMouseOut = () => {
   editAvatarIcon.classList.add('profile__edit-avatar_hidden');
 };
 
@@ -66,7 +54,7 @@ avatarLogo.addEventListener('mouseover', handleMouseOver);
 avatarLogo.addEventListener('mouseout', handleMouseOut);
 
 // Загрузка данных о пользователе и массив карточек - одним промисом
-getAppInfo()
+api.getAppInfo()
   .then(([user, cardData]) => {
     profileAvatar.src = user.avatar;
     profileUsername.textContent = user.name;
@@ -136,6 +124,7 @@ const handleCardDelete = (cardElement, cardId) => {
 /* **********************    Кнопки вызова попапов   ********************** */
 
 editAvatarIcon.addEventListener('click', () => {
+  inputFieldStateCheck(popupAvatarEditElement);
   openPopup(popupAvatarEditElement);
   updateSubmitButtonState(popupAvatarEditElement);
 });
@@ -143,6 +132,7 @@ editAvatarIcon.addEventListener('click', () => {
 editProfileButton.addEventListener('click', () => {
   nameInput.value = profileUsername.textContent;
   jobInput.value = profileDescription.textContent;
+  inputFieldStateCheck(popupProfileEditElement);
   openPopup(popupProfileEditElement);
   updateSubmitButtonState(popupProfileEditElement);
 });
@@ -198,7 +188,7 @@ const handleProfileFormSubmit = (event) => {
   event.preventDefault();
 
   renderLoading(true, popupProfileEditElement);
-  updateProfile(nameInput.value, jobInput.value)
+  api.updateProfile(nameInput.value, jobInput.value)
     .then((userData) => {
       // вставить значение nameInput.value
       profileUsername.textContent = userData.name;
